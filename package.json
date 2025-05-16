@@ -1,6 +1,6 @@
 {
 	"name": "minipom",
-	"version": "0.9.5",
+	"version": "0.9.6",
 	"private": true,
 	"scripts": {
 		"dev": "vite dev",
@@ -9,15 +9,15 @@
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
 		"lint": "prettier --check ./src/**/*.{ts,svelte} && eslint --fix ./src/**/*.{ts,svelte}",
-		"format": "prettier --write ./src/**/*.{ts,svelte}",
+		"format": "prettier --write ./{src,src-tauri}/**/*.{ts,svelte,json}",
 		"prepare": "husky"
 	},
 	"lint-staged": {
 		"*.{js,ts,svelte}": [
+			"prettier --check",
 			"eslint",
-			"svelte-kit sync && svelte-check --tsconfig ./tsconfig.json"
+			"pnpm check"
 		],
-		"*.{json,toml,yaml,md,yml,ts,js,svelte}": "prettier --check",
 		"*.rs": [
 			"cd ./src-tauri && cargo fmt",
 			"cd ./src-tauri && cargo clippy"
