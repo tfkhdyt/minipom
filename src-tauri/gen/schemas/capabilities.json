@@ -1,1 +1,37 @@
-{"migrated":{"identifier":"migrated","description":"permissions that were migrated from v1","local":true,"windows":["main"],"permissions":["core:default","fs:allow-read-file","fs:allow-write-file","fs:allow-read-dir","fs:allow-mkdir","fs:allow-exists","fs:allow-write-text-file",{"identifier":"fs:scope","allow":["$CONFIG/**/*","$APPCONFIG/*","$DATA/**/*","$APPDATA/*","$RESOURCE/audio/button-press.wav","$RESOURCE/audio/alarm-kitchen.mp3"]},"core:window:allow-set-title","dialog:allow-confirm","notification:default","process:allow-exit","notification:default","process:default","dialog:default","fs:default","fs:default"]}}
+{
+	"migrated": {
+		"identifier": "migrated",
+		"description": "permissions that were migrated from v1",
+		"local": true,
+		"windows": ["main"],
+		"permissions": [
+			"core:default",
+			"fs:allow-read-file",
+			"fs:allow-write-file",
+			"fs:allow-read-dir",
+			"fs:allow-mkdir",
+			"fs:allow-exists",
+			"fs:allow-write-text-file",
+			{
+				"identifier": "fs:scope",
+				"allow": [
+					"$CONFIG/**/*",
+					"$APPCONFIG/*",
+					"$DATA/**/*",
+					"$APPDATA/*",
+					"$RESOURCE/audio/button-press.wav",
+					"$RESOURCE/audio/alarm-kitchen.mp3"
+				]
+			},
+			"core:window:allow-set-title",
+			"dialog:allow-confirm",
+			"notification:default",
+			"process:allow-exit",
+			"notification:default",
+			"process:default",
+			"dialog:default",
+			"fs:default",
+			"fs:default"
+		]
+	}
+}
