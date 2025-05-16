@@ -1,6 +1,10 @@
 # Minipom
 
-![Screenshot_20241128_084032](https://github.com/user-attachments/assets/073ab0b9-8daa-4eeb-9746-9e8541d2a31f)
+<div align="center">
+  <img src="./static/minipom.png" alt="Minipom Logo" width="128" height="128">
+  <br />
+  <img src="./static/screenshot.png" />
+</div>
 
 A minimalistic and elegant Pomodoro timer desktop application built with Tauri and SvelteKit. Minipom helps you stay focused and productive using the Pomodoro Technique, featuring a clean interface and customizable settings.
 
