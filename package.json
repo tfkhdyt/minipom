@@ -14,10 +14,10 @@
 	},
 	"lint-staged": {
 		"*.{js,ts,svelte}": [
+			"prettier --check",
 			"eslint",
 			"pnpm check"
 		],
-		"*.{json,toml,yaml,md,yml,ts,js,svelte}": "prettier --check",
 		"*.rs": [
 			"cd ./src-tauri && cargo fmt",
 			"cd ./src-tauri && cargo clippy"
