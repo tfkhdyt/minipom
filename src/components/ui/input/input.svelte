@@ -40,8 +40,7 @@
 		on:paste
 		on:input
 		on:wheel
-		{...$$restProps}
-	/>
+		{...$$restProps} />
 {:else}
 	<input
 		class={cn(
@@ -65,6 +64,5 @@
 		on:paste
 		on:input
 		on:wheel
-		{...$$restProps}
-	/>
+		{...$$restProps} />
 {/if}
