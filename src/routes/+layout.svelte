@@ -29,7 +29,7 @@
 
 {#if isLoading}
 	<div
-		class="flex flex-col items-center justify-center min-h-screen bg-slate-900">
+		class="flex flex-col items-center justify-center min-h-screen bg-slate-800">
 		<div
 			class="animate-spin rounded-full h-12 w-12 border-b-2 border-slate-400 mb-4">
 		</div>
@@ -37,7 +37,7 @@
 	</div>
 {:else if error}
 	<div
-		class="flex flex-col items-center justify-center min-h-screen bg-slate-900">
+		class="flex flex-col items-center justify-center min-h-screen bg-slate-800">
 		<div
 			class="rounded-full h-12 w-12 bg-red-900/50 flex items-center justify-center mb-4">
 			<svg
