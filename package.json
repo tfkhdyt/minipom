@@ -1,6 +1,6 @@
 {
 	"name": "minipom",
-	"version": "0.9.7",
+	"version": "0.10.0",
 	"private": true,
 	"scripts": {
 		"dev": "vite dev",

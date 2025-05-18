@@ -46,7 +46,7 @@
 	},
 	"productName": "Minipom",
 	"mainBinaryName": "minipom",
-	"version": "0.9.7",
+	"version": "0.10.0",
 	"identifier": "id.my.tfkhdyt.minipom",
 	"plugins": {},
 	"app": {
