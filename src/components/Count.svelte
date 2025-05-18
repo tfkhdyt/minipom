@@ -1,19 +1,26 @@
 <script lang="ts">
+	import { dataStore } from '@/stores/data.store';
 	import { getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow';
+	import { onMount } from 'svelte';
 	import { match } from 'ts-pattern';
-	import type { LayoutData } from '../routes/$types';
-	const appWindow = getCurrentWebviewWindow();
 
-	export let data: LayoutData;
+	let appWindow: Awaited<ReturnType<typeof getCurrentWebviewWindow>>;
+
+	onMount(() => {
+		appWindow = getCurrentWebviewWindow();
+	});
+
 	export let resetReps: () => Promise<void>;
 	export let reps: number;
 
-	$: currentTaskTitle = data.appData.tasks.find(
-		(it) => it.id === data.appData.activeTask
+	$: currentTaskTitle = $dataStore?.tasks.find(
+		(it) => it.id === $dataStore?.activeTask
 	)?.title;
 
 	$: (async () => {
-		switch (data.appData.pomodoroState) {
+		if (typeof window === 'undefined' || !appWindow) return;
+
+		switch ($dataStore?.pomodoroState) {
 			case 'pomodoro':
 				await appWindow.setTitle(
 					`${currentTaskTitle ?? 'Time to focus!'} — Minipom`
@@ -38,7 +45,7 @@
 	</button>
 	<h3 class="font-medium select-none cursor-default">
 		{currentTaskTitle ??
-			match(data.appData.pomodoroState)
+			match($dataStore?.pomodoroState)
 				.with('pomodoro', () => 'Time to focus!')
 				.otherwise(() => 'Time for a break!')}
 	</h3>

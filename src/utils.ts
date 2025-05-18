@@ -1,7 +1,7 @@
 import { type ClassValue, clsx } from 'clsx';
-import { twMerge } from 'tailwind-merge';
 import { cubicOut } from 'svelte/easing';
 import type { TransitionConfig } from 'svelte/transition';
+import { twMerge } from 'tailwind-merge';
 
 export function cn(...inputs: ClassValue[]) {
 	return twMerge(clsx(inputs));
@@ -60,3 +60,22 @@ export const flyAndScale = (
 		easing: cubicOut
 	};
 };
+
+export function debounce<T extends (...args: Parameters<T>) => Promise<void>>(
+	func: T,
+	delay: number
+): (...args: Parameters<T>) => void {
+	let timeoutId: number | null = null;
+
+	return function (...args: Parameters<T>): void {
+		if (typeof window === 'undefined') return;
+
+		if (timeoutId) {
+			clearTimeout(timeoutId);
+		}
+		timeoutId = setTimeout(() => {
+			// @ts-expect-error - this is not typed
+			func.apply(this, args);
+		}, delay);
+	};
+}

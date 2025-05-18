@@ -1,8 +1,13 @@
 <script lang="ts">
-	import * as ContextMenu from '@/components/ui/context-menu';
 	import * as Alert from '@/components/ui/alert';
-	import type { ButtonState, Config, Data, Task } from '@/types';
+	import * as ContextMenu from '@/components/ui/context-menu';
+	import { configStore } from '@/stores/config.store';
+	import { dataStore } from '@/stores/data.store';
+	import { editTaskData, showEditTaskModal } from '@/stores/edit-task';
+	import type { ButtonState, Task } from '@/types';
 	import { cn } from '@/utils';
+	import { confirm } from '@tauri-apps/plugin-dialog';
+	import { sendNotification } from '@tauri-apps/plugin-notification';
 	import {
 		CircleCheckIcon,
 		PencilIcon,
@@ -10,32 +15,24 @@
 		Trash2Icon
 	} from 'lucide-svelte';
 	import { match } from 'ts-pattern';
-	import { sendNotification } from '@tauri-apps/plugin-notification';
-	import { confirm } from '@tauri-apps/plugin-dialog';
-	import { editTaskData, showEditTaskModal } from '@/stores/edit-task';
 
 	export let buttonState: ButtonState;
 	export let item: Task;
-	export let appData: Data;
-	export let config: Config;
-	export let save: () => Promise<void>;
 	export let switchTask: (id: number) => Promise<void>;
 
 	$: canResetActPomodoro = item.act > 0;
 
 	async function toggleMark(id: number) {
-		appData.tasks = appData.tasks.map((it) => {
+		$dataStore.tasks = $dataStore.tasks.map((it) => {
 			if (it.id === id) {
 				it.done = !it.done;
 			}
 			return it;
 		});
 
-		if (config.task.autoSwitchTasks) {
+		if ($configStore.task.autoSwitchTasks) {
 			await switchTask(id);
 		}
-
-		await save();
 	}
 
 	async function setActiveTask(id: number) {
@@ -48,21 +45,20 @@
 				return;
 			}
 		}
-		appData.activeTask = id;
-		await save();
+		$dataStore.activeTask = id;
 	}
 
 	async function editTask(id: number) {
 		$showEditTaskModal = true;
 
-		const task = appData.tasks.find((task) => task.id === id);
+		const task = $dataStore.tasks.find((task) => task.id === id);
 		if (task) {
 			$editTaskData = task;
 		}
 	}
 
 	async function deleteTask(id: number) {
-		const item = appData.tasks.find((it) => it.id === id);
+		const item = $dataStore.tasks.find((it) => it.id === id);
 
 		if (item) {
 			const confirmed = await confirm(
@@ -70,15 +66,15 @@
 			);
 
 			if (confirmed) {
-				appData.tasks = appData.tasks.filter((it) => it.id !== id);
-				await save();
+				$dataStore.tasks = $dataStore.tasks.filter((it) => it.id !== id);
+
 				sendNotification('Task has been deleted');
 			}
 		}
 	}
 
 	async function resetActPomodoro(id: number) {
-		appData.tasks = appData.tasks.map((t) => {
+		$dataStore.tasks = $dataStore.tasks.map((t) => {
 			if (t.id === id) {
 				return {
 					...t,
@@ -88,8 +84,6 @@
 
 			return t;
 		});
-
-		await save();
 	}
 </script>
 
@@ -100,7 +94,7 @@
 			{...builder}
 			class={cn(
 				'w-full bg-white rounded-md py-3 pl-3 pr-5 text-slate-700 font-semibold border-l-[6px] focus:outline-none space-y-2 cursor-grab',
-				item.id === appData.activeTask
+				item.id === $dataStore.activeTask
 					? 'border-l-black'
 					: 'border-l-transparent hover:border-l-slate-300'
 			)}

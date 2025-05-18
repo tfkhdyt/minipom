@@ -1,16 +1,13 @@
 <script lang="ts">
 	import * as Dialog from '@/components/ui/dialog';
+	import { dataStore } from '@/stores/data.store';
+	import { editTaskData, showEditTaskModal } from '@/stores/edit-task';
+	import { sendNotification } from '@tauri-apps/plugin-notification';
+	import { SaveIcon } from 'lucide-svelte';
+	import { Button } from '../ui/button';
 	import { Input } from '../ui/input';
 	import { Label } from '../ui/label';
 	import { Textarea } from '../ui/textarea';
-	import { Button } from '../ui/button';
-	import { SaveIcon } from 'lucide-svelte';
-	import { showEditTaskModal, editTaskData } from '@/stores/edit-task';
-	import { sendNotification } from '@tauri-apps/plugin-notification';
-	import type { Data } from '@/types';
-
-	export let appData: Data;
-	export let save: () => Promise<void>;
 
 	$: addNote = !!$editTaskData.note;
 
@@ -19,7 +16,7 @@
 			return sendNotification({ title: 'Title should not be empty' });
 		}
 
-		appData.tasks = appData.tasks.map((task) => {
+		$dataStore.tasks = $dataStore.tasks.map((task) => {
 			if (task.id === $editTaskData.id) {
 				return {
 					...task,
@@ -31,8 +28,6 @@
 			}
 			return task;
 		});
-
-		await save();
 
 		sendNotification('Task has been updated');
 		$showEditTaskModal = false;

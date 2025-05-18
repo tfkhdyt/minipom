@@ -1,13 +1,11 @@
 <script lang="ts">
-	import { match } from 'ts-pattern';
+	import { dataStore } from '@/stores/data.store';
 	import { type ButtonState } from '@/types';
-	import ToggleButton from './buttons/ToggleButton.svelte';
-	import SkipButton from './buttons/SkipButton.svelte';
-	import SettingDialog from './SettingDialog.svelte';
-	import type { LayoutData } from '../routes/$types';
 	import { cn } from '@/utils';
-
-	export let data: LayoutData;
+	import { match } from 'ts-pattern';
+	import SkipButton from './buttons/SkipButton.svelte';
+	import ToggleButton from './buttons/ToggleButton.svelte';
+	import SettingDialog from './SettingDialog.svelte';
 
 	export let timer: string;
 	export let handleClick: () => void;
@@ -18,14 +16,14 @@
 <div
 	class={cn(
 		'w-[450px] md:w-[500px] mx-auto py-8 md:py-10 rounded-xl space-y-4 md:space-y-6 transition duration-500',
-		match(data.appData.pomodoroState)
+		match($dataStore.pomodoroState)
 			.with('pomodoro', () => 'bg-[#c15c5c]')
 			.with('short-break', () => 'bg-[#4c9196]')
 			.with('long-break', () => 'bg-[#4d7fa2]')
 			.exhaustive()
 	)}>
 	<h1 class="mx-auto font-bold text-2xl md:text-3xl select-none cursor-default">
-		{match(data.appData.pomodoroState)
+		{match($dataStore.pomodoroState)
 			.with('pomodoro', () => 'Pomodoro')
 			.with('short-break', () => 'Short Break')
 			.with('long-break', () => 'Long Break')
@@ -37,11 +35,11 @@
 	</h2>
 
 	<div class="relative flex">
-		<SettingDialog {data} />
+		<SettingDialog />
 		<ToggleButton
 			{buttonState}
 			{handleClick}
-			pomodoroType={data.appData.pomodoroState} />
+			pomodoroType={$dataStore.pomodoroState} />
 		{#if buttonState === 'playing'}
 			<SkipButton {nextStep} />
 		{/if}

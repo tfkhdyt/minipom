@@ -1,15 +1,12 @@
 <script lang="ts">
+	import { Button } from '@/components/ui/button';
 	import * as Dialog from '@/components/ui/dialog';
-	import * as Tooltip from '@/components/ui/tooltip';
-	import SettingButton from './buttons/SettingButton.svelte';
 	import { Input } from '@/components/ui/input';
 	import { Label } from '@/components/ui/label';
 	import { Switch } from '@/components/ui/switch';
-	import { Button } from '@/components/ui/button';
-	import { BaseDirectory, writeTextFile } from '@tauri-apps/plugin-fs';
+	import * as Tooltip from '@/components/ui/tooltip';
 	import { defaultConfig } from '@/constants';
-	import type { LayoutData } from '../routes/$types';
-	import { invalidateAll } from '$app/navigation';
+	import { configStore } from '@/stores/config.store';
 	import { sendNotification } from '@tauri-apps/plugin-notification';
 	import {
 		ClockIcon,
@@ -18,35 +15,39 @@
 		SaveIcon,
 		SquareCheckBigIcon
 	} from 'lucide-svelte';
+	import SettingButton from './buttons/SettingButton.svelte';
 
-	export let data: LayoutData;
+	let pomodoro = $configStore.timer.time.pomodoro;
+	let shortBreak = $configStore.timer.time.shortBreak;
+	let longBreak = $configStore.timer.time.longBreak;
+	let autoStartBreaks = $configStore.timer.autoStart.breaks;
+	let autoStartPomodoros = $configStore.timer.autoStart.pomodoros;
+	let longBreakInterval = $configStore.timer.longBreakInterval;
+	let autoCheckTasks = $configStore.task.autoCheckTasks;
+	let autoSwitchTasks = $configStore.task.autoSwitchTasks;
 
 	async function saveConfig() {
-		// const newConfig: Config = {
-		// 	timer: {
-		// 		time: {
-		// 			pomodoro: Number(data.config.timer.time.pomodoro),
-		// 			shortBreak: Number(data.config.timer.time.shortBreak),
-		// 			longBreak: Number(data.config.timer.time.longBreak)
-		// 		},
-		// 		longBreakInterval: Number(data.config.timer.longBreakInterval),
-		// 		autoStart: data.config.timer.autoStart
-		// 	}
-		// };
-		await writeTextFile('config.json', JSON.stringify(data.config, null, 2), {
-			baseDir: BaseDirectory.AppConfig
-		});
-
-		await invalidateAll();
+		$configStore.timer.time.pomodoro = pomodoro;
+		$configStore.timer.time.shortBreak = shortBreak;
+		$configStore.timer.time.longBreak = longBreak;
+		$configStore.timer.autoStart.breaks = autoStartBreaks;
+		$configStore.timer.autoStart.pomodoros = autoStartPomodoros;
+		$configStore.timer.longBreakInterval = longBreakInterval;
+		$configStore.task.autoCheckTasks = autoCheckTasks;
+		$configStore.task.autoSwitchTasks = autoSwitchTasks;
 		sendNotification({ title: 'Setting has been saved' });
 	}
 
 	async function restoreDefault() {
-		await writeTextFile('config.json', JSON.stringify(defaultConfig, null, 2), {
-			baseDir: BaseDirectory.AppConfig
-		});
-
-		await invalidateAll();
+		$configStore = defaultConfig;
+		pomodoro = $configStore.timer.time.pomodoro;
+		shortBreak = $configStore.timer.time.shortBreak;
+		longBreak = $configStore.timer.time.longBreak;
+		autoStartBreaks = $configStore.timer.autoStart.breaks;
+		autoStartPomodoros = $configStore.timer.autoStart.pomodoros;
+		longBreakInterval = $configStore.timer.longBreakInterval;
+		autoCheckTasks = $configStore.task.autoCheckTasks;
+		autoSwitchTasks = $configStore.task.autoSwitchTasks;
 		sendNotification({ title: 'Setting has been restored to default' });
 	}
 </script>
@@ -75,7 +76,7 @@
 								id="pomodoro"
 								placeholder="25"
 								required
-								bind:value={data.config.timer.time.pomodoro} />
+								bind:value={pomodoro} />
 						</div>
 						<div>
 							<Label for="short-break" class="font-medium text-slate-700">
@@ -86,7 +87,7 @@
 								id="short-break"
 								placeholder="5"
 								required
-								bind:value={data.config.timer.time.shortBreak} />
+								bind:value={shortBreak} />
 						</div>
 						<div>
 							<Label for="long-break" class="font-medium text-slate-700">
@@ -97,7 +98,7 @@
 								id="long-break"
 								placeholder="15"
 								required
-								bind:value={data.config.timer.time.longBreak} />
+								bind:value={longBreak} />
 						</div>
 					</div>
 				</div>
@@ -105,9 +106,7 @@
 					<Label
 						for="auto-start-break"
 						class="font-medium text-slate-700 w-full">Auto Start Breaks</Label>
-					<Switch
-						id="auto-start-break"
-						bind:checked={data.config.timer.autoStart.breaks} />
+					<Switch id="auto-start-break" bind:checked={autoStartBreaks} />
 				</div>
 				<div class="flex justify-between items-center">
 					<Label
@@ -115,9 +114,7 @@
 						class="font-medium text-slate-700 w-full">
 						Auto Start Pomodoros
 					</Label>
-					<Switch
-						id="auto-start-pomodoros"
-						bind:checked={data.config.timer.autoStart.pomodoros} />
+					<Switch id="auto-start-pomodoros" bind:checked={autoStartPomodoros} />
 				</div>
 				<div class="flex justify-between items-center">
 					<Label
@@ -131,7 +128,7 @@
 						placeholder="4"
 						class="w-24"
 						required
-						bind:value={data.config.timer.longBreakInterval} />
+						bind:value={longBreakInterval} />
 				</div>
 			</div>
 		</div>
@@ -162,9 +159,7 @@
 							</Tooltip.Content>
 						</Tooltip.Root>
 					</div>
-					<Switch
-						id="auto-check-tasks"
-						bind:checked={data.config.task.autoCheckTasks} />
+					<Switch id="auto-check-tasks" bind:checked={autoCheckTasks} />
 				</div>
 				<div class="flex justify-between items-center">
 					<div class="flex items-center">
@@ -188,9 +183,7 @@
 							</Tooltip.Content>
 						</Tooltip.Root>
 					</div>
-					<Switch
-						id="auto-switch-tasks"
-						bind:checked={data.config.task.autoSwitchTasks} />
+					<Switch id="auto-switch-tasks" bind:checked={autoSwitchTasks} />
 				</div>
 			</div>
 		</div>

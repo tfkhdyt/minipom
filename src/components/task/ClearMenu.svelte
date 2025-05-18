@@ -1,6 +1,6 @@
 <script lang="ts">
 	import * as DropdownMenu from '@/components/ui/dropdown-menu';
-	import type { Task } from '@/types';
+	import { dataStore } from '@/stores/data.store';
 	import { confirm } from '@tauri-apps/plugin-dialog';
 	import { sendNotification } from '@tauri-apps/plugin-notification';
 	import {
@@ -11,13 +11,12 @@
 	} from 'lucide-svelte';
 	import { Button } from '../ui/button';
 
-	export let tasks: Task[];
-	export let save: () => Promise<void>;
-
-	$: canClearFinishedTasks = tasks.some((t) => t.done);
+	$: canClearFinishedTasks = $dataStore?.tasks.some((t) => t.done);
 	$: canResetActPomodoros =
-		tasks.length > 0 && tasks.map((t) => t.act).reduce((a, b) => a + b) > 0;
-	$: canClearAllTasks = tasks.length > 0;
+		$dataStore?.tasks &&
+		$dataStore?.tasks?.length > 0 &&
+		($dataStore?.tasks?.map((t) => t.act).reduce((a, b) => a + b, 0) ?? 0) > 0;
+	$: canClearAllTasks = $dataStore?.tasks && $dataStore?.tasks?.length > 0;
 
 	async function clearFinishedTasks() {
 		const confirmed = await confirm(
@@ -25,8 +24,9 @@
 		);
 
 		if (confirmed) {
-			tasks = tasks.filter((task) => task.done === false);
-			await save();
+			$dataStore.tasks = $dataStore?.tasks.filter(
+				(task) => task.done === false
+			);
 
 			sendNotification('Finished tasks has been cleared');
 		}
@@ -38,12 +38,10 @@
 		);
 
 		if (confirmed) {
-			tasks = tasks.map((t) => ({
+			$dataStore.tasks = $dataStore?.tasks.map((t) => ({
 				...t,
 				act: 0
 			}));
-
-			await save();
 
 			sendNotification('All act pomodoros count has been reset');
 		}
@@ -53,9 +51,7 @@
 		const confirmed = await confirm('Are you sure want to clear all tasks?');
 
 		if (confirmed) {
-			tasks = [];
-
-			await save();
+			$dataStore.tasks = [];
 
 			sendNotification('All tasks has been cleared');
 		}

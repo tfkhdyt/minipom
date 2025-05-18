@@ -1,17 +1,13 @@
 <script lang="ts">
 	import * as Dialog from '@/components/ui/dialog';
+	import { dataStore } from '@/stores/data.store';
 	import { cn } from '@/utils';
+	import { sendNotification } from '@tauri-apps/plugin-notification';
+	import { SaveIcon } from 'lucide-svelte';
+	import { Button } from '../ui/button';
 	import { Input } from '../ui/input';
 	import { Label } from '../ui/label';
 	import { Textarea } from '../ui/textarea';
-	import { Button } from '../ui/button';
-	import { SaveIcon } from 'lucide-svelte';
-	import { sendNotification } from '@tauri-apps/plugin-notification';
-	import type { LayoutData } from '../../routes/$types';
-
-	export let data: LayoutData;
-
-	export let save: () => Promise<void>;
 
 	let title: string | null = null;
 	let estPomodoros = 1;
@@ -30,15 +26,17 @@
 			return sendNotification({ title: 'Title should not be empty' });
 		}
 
-		data.appData.tasks.unshift({
-			id: Date.now(),
-			act: 0,
-			done: false,
-			est: estPomodoros,
-			title,
-			note
-		});
-		await save();
+		$dataStore.tasks = [
+			{
+				id: Date.now(),
+				act: 0,
+				done: false,
+				est: estPomodoros,
+				title,
+				note
+			},
+			...$dataStore.tasks
+		];
 
 		sendNotification('New task has been added');
 		open = false;
