@@ -17,10 +17,6 @@
 			"prettier --check",
 			"eslint",
 			"pnpm check"
-		],
-		"*.rs": [
-			"cd ./src-tauri && cargo fmt",
-			"cd ./src-tauri && cargo clippy"
 		]
 	},
 	"devDependencies": {
