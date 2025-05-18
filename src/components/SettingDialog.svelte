@@ -7,7 +7,7 @@
 	import * as Tooltip from '@/components/ui/tooltip';
 	import { defaultConfig } from '@/constants';
 	import { configStore } from '@/stores/config.store';
-	import { sendNotification } from '@tauri-apps/plugin-notification';
+	import { invoke } from '@tauri-apps/api/core';
 	import {
 		ClockIcon,
 		InfoIcon,
@@ -35,7 +35,10 @@
 		$configStore.timer.longBreakInterval = longBreakInterval;
 		$configStore.task.autoCheckTasks = autoCheckTasks;
 		$configStore.task.autoSwitchTasks = autoSwitchTasks;
-		sendNotification({ title: 'Setting has been saved' });
+
+		await invoke('send_notification', {
+			title: 'Setting has been saved'
+		});
 	}
 
 	async function restoreDefault() {
@@ -48,7 +51,10 @@
 		longBreakInterval = $configStore.timer.longBreakInterval;
 		autoCheckTasks = $configStore.task.autoCheckTasks;
 		autoSwitchTasks = $configStore.task.autoSwitchTasks;
-		sendNotification({ title: 'Setting has been restored to default' });
+
+		await invoke('send_notification', {
+			title: 'Setting has been restored to default'
+		});
 	}
 </script>
 

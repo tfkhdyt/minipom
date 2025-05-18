@@ -6,8 +6,8 @@
 	import { editTaskData, showEditTaskModal } from '@/stores/edit-task';
 	import type { ButtonState, Task } from '@/types';
 	import { cn } from '@/utils';
+	import { invoke } from '@tauri-apps/api/core';
 	import { confirm } from '@tauri-apps/plugin-dialog';
-	import { sendNotification } from '@tauri-apps/plugin-notification';
 	import {
 		CircleCheckIcon,
 		PencilIcon,
@@ -68,7 +68,9 @@
 			if (confirmed) {
 				$dataStore.tasks = $dataStore.tasks.filter((it) => it.id !== id);
 
-				sendNotification('Task has been deleted');
+				await invoke('send_notification', {
+					title: 'Task has been deleted'
+				});
 			}
 		}
 	}

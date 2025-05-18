@@ -2,7 +2,7 @@
 	import * as Dialog from '@/components/ui/dialog';
 	import { dataStore } from '@/stores/data.store';
 	import { cn } from '@/utils';
-	import { sendNotification } from '@tauri-apps/plugin-notification';
+	import { invoke } from '@tauri-apps/api/core';
 	import { SaveIcon } from 'lucide-svelte';
 	import { Button } from '../ui/button';
 	import { Input } from '../ui/input';
@@ -23,7 +23,10 @@
 
 	async function handleSave() {
 		if (!title) {
-			return sendNotification({ title: 'Title should not be empty' });
+			await invoke('send_notification', {
+				title: 'Title should not be empty'
+			});
+			return;
 		}
 
 		$dataStore.tasks = [
@@ -38,7 +41,10 @@
 			...$dataStore.tasks
 		];
 
-		sendNotification('New task has been added');
+		await invoke('send_notification', {
+			title: 'New task has been added'
+		});
+
 		open = false;
 		estPomodoros = 1;
 		title = null;

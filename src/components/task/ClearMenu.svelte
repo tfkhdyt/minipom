@@ -1,8 +1,8 @@
 <script lang="ts">
 	import * as DropdownMenu from '@/components/ui/dropdown-menu';
 	import { dataStore } from '@/stores/data.store';
+	import { invoke } from '@tauri-apps/api/core';
 	import { confirm } from '@tauri-apps/plugin-dialog';
-	import { sendNotification } from '@tauri-apps/plugin-notification';
 	import {
 		EllipsisVerticalIcon,
 		ListChecksIcon,
@@ -28,7 +28,9 @@
 				(task) => task.done === false
 			);
 
-			sendNotification('Finished tasks has been cleared');
+			await invoke('send_notification', {
+				title: 'Finished tasks has been cleared'
+			});
 		}
 	}
 
@@ -43,7 +45,9 @@
 				act: 0
 			}));
 
-			sendNotification('All act pomodoros count has been reset');
+			await invoke('send_notification', {
+				title: 'All act pomodoros count has been reset'
+			});
 		}
 	}
 
@@ -53,7 +57,9 @@
 		if (confirmed) {
 			$dataStore.tasks = [];
 
-			sendNotification('All tasks has been cleared');
+			await invoke('send_notification', {
+				title: 'All tasks has been cleared'
+			});
 		}
 	}
 </script>

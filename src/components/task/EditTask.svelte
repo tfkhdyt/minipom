@@ -2,7 +2,7 @@
 	import * as Dialog from '@/components/ui/dialog';
 	import { dataStore } from '@/stores/data.store';
 	import { editTaskData, showEditTaskModal } from '@/stores/edit-task';
-	import { sendNotification } from '@tauri-apps/plugin-notification';
+	import { invoke } from '@tauri-apps/api/core';
 	import { SaveIcon } from 'lucide-svelte';
 	import { Button } from '../ui/button';
 	import { Input } from '../ui/input';
@@ -13,7 +13,9 @@
 
 	async function handleSave() {
 		if (!$editTaskData.title) {
-			return sendNotification({ title: 'Title should not be empty' });
+			return await invoke('send_notification', {
+				title: 'Title should not be empty'
+			});
 		}
 
 		$dataStore.tasks = $dataStore.tasks.map((task) => {
@@ -29,7 +31,9 @@
 			return task;
 		});
 
-		sendNotification('Task has been updated');
+		await invoke('send_notification', {
+			title: 'Task has been updated'
+		});
 		$showEditTaskModal = false;
 	}
 </script>

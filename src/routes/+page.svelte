@@ -13,8 +13,7 @@
 	import { confirm } from '@tauri-apps/plugin-dialog';
 	import {
 		isPermissionGranted,
-		requestPermission,
-		sendNotification
+		requestPermission
 	} from '@tauri-apps/plugin-notification';
 	import { exit } from '@tauri-apps/plugin-process';
 	import { onDestroy, onMount } from 'svelte';
@@ -159,7 +158,9 @@
 			$dataStore.pomodoroState === 'pomodoro' &&
 			$dataStore.reps % longBreakInterval !== 0
 		) {
-			sendNotification({ title: 'Time to take a short break!' });
+			await invoke('send_notification', {
+				title: 'Time to take a short break!'
+			});
 			$dataStore.pomodoroState = 'short-break';
 			$dataStore.lastTime = null;
 
@@ -175,7 +176,9 @@
 			$dataStore.pomodoroState === 'pomodoro' &&
 			$dataStore.reps % longBreakInterval === 0
 		) {
-			sendNotification({ title: 'Time to take a long break!' });
+			await invoke('send_notification', {
+				title: 'Time to take a long break!'
+			});
 			$dataStore.pomodoroState = 'long-break';
 			$dataStore.lastTime = null;
 
@@ -189,7 +192,9 @@
 			}
 		} else {
 			$dataStore.reps = $dataStore.reps + 1;
-			sendNotification({ title: 'Time to focus!' });
+			await invoke('send_notification', {
+				title: 'Time to focus!'
+			});
 			$dataStore.pomodoroState = 'pomodoro';
 			$dataStore.lastTime = null;
 

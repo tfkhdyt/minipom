@@ -2307,6 +2307,7 @@ checksum = "68354c5c6bd36d73ff3feceb05efa59b6acb7626617f4962be322a825e61f79a"
 name = "minipom"
 version = "0.9.7"
 dependencies = [
+ "notify-rust",
  "reqwest 0.11.27",
  "rodio",
  "serde",
