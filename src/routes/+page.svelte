@@ -19,12 +19,6 @@
 	import { onDestroy, onMount } from 'svelte';
 	import { match } from 'ts-pattern';
 
-	let isLoading = true;
-
-	onMount(() => {
-		isLoading = false;
-	});
-
 	$: longBreakInterval = $configStore.timer.longBreakInterval;
 
 	let buttonState: ButtonState = 'paused';
@@ -54,11 +48,12 @@
 	let permissionGranted: boolean;
 	onMount(async () => {
 		permissionGranted = await isPermissionGranted();
-	});
 
-	$: if (!permissionGranted) {
-		askNotifPermission();
-	}
+		if (!permissionGranted) {
+			const permission = await requestPermission();
+			permissionGranted = permission === 'granted';
+		}
+	});
 
 	onMount(() => {
 		webviewWindow
@@ -69,11 +64,6 @@
 				await exit();
 			});
 	});
-
-	async function askNotifPermission() {
-		const permission = await requestPermission();
-		permissionGranted = permission === 'granted';
-	}
 
 	async function updateTimer() {
 		timeLeft--;
@@ -147,10 +137,6 @@
 
 	async function nextStep() {
 		clearInterval(intervalId);
-
-		if (!permissionGranted) {
-			await askNotifPermission();
-		}
 
 		pause();
 
@@ -261,24 +247,17 @@
 			.exhaustive(),
 		$dataStore.tasks.length === 0 && 'justify-center'
 	)}>
-	{#if isLoading}
-		<div class="flex items-center justify-center h-full">
-			<div class="animate-spin rounded-full h-8 w-8 border-b-2 border-white">
-			</div>
-		</div>
-	{:else}
-		<Progress
-			value={progress}
-			class={cn(
-				'w-[450px] md:w-[500px] mx-auto mb-4 h-2 dark',
-				match($dataStore.pomodoroState)
-					.with('pomodoro', () => 'bg-[#c15c5c]')
-					.with('short-break', () => 'bg-[#4c9196]')
-					.with('long-break', () => 'bg-[#4d7fa2]')
-					.exhaustive()
-			)} />
-		<Card {buttonState} {handleClick} {nextStep} {timer} />
-		<Count reps={$dataStore.reps} {resetReps} />
-		<Tasks {switchTask} reps={$dataStore.reps} {buttonState} />
-	{/if}
+	<Progress
+		value={progress}
+		class={cn(
+			'w-[450px] md:w-[500px] mx-auto mb-4 h-2 dark',
+			match($dataStore.pomodoroState)
+				.with('pomodoro', () => 'bg-[#c15c5c]')
+				.with('short-break', () => 'bg-[#4c9196]')
+				.with('long-break', () => 'bg-[#4d7fa2]')
+				.exhaustive()
+		)} />
+	<Card {buttonState} {handleClick} {nextStep} {timer} />
+	<Count reps={$dataStore.reps} {resetReps} />
+	<Tasks {switchTask} reps={$dataStore.reps} {buttonState} />
 </main>
