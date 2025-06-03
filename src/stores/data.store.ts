@@ -22,8 +22,7 @@ export async function getData() {
 		tasks: [],
 		reps: 1,
 		pomodoroState: 'pomodoro' as const,
-		lastTime: null,
-		elapsedSinceStateChange: 0
+		lastTime: null
 	};
 
 	const isDataFileExists = await exists('data.json', {
@@ -47,7 +46,6 @@ export async function getData() {
 		currentData.activeTask ??= null;
 		currentData.tasks ??= [];
 		currentData.lastTime ??= null;
-		currentData.elapsedSinceStateChange ??= 0;
 
 		return currentData;
 	} catch (error) {

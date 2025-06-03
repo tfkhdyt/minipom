@@ -22,6 +22,7 @@
 	$: longBreakInterval = $configStore.timer.longBreakInterval;
 
 	let buttonState: ButtonState = 'paused';
+	let elapsedSinceStateChange = 0;
 
 	$: targetMinutes = match($dataStore.pomodoroState)
 		.with('pomodoro', () => $configStore.timer.time.pomodoro)
@@ -33,12 +34,12 @@
 		.toString()
 		.padStart(2, '0')}:${(timeLeft % 60).toString().padStart(2, '0')}`;
 	$: progress = 100 - (timeLeft / 60 / targetMinutes) * 100;
-	$: elapsedTimer = `${Math.floor($dataStore.elapsedSinceStateChange / 60)
+	$: elapsedTimer = `${Math.floor(elapsedSinceStateChange / 60)
 		.toString()
 		.padStart(
 			2,
 			'0'
-		)}:${($dataStore.elapsedSinceStateChange % 60).toString().padStart(2, '0')}`;
+		)}:${(elapsedSinceStateChange % 60).toString().padStart(2, '0')}`;
 
 	let lastTimeInterval: number;
 	let elapsedTimeInterval: number;
@@ -52,7 +53,7 @@
 
 		// Start tracking elapsed time since last state change
 		elapsedTimeInterval = setInterval(() => {
-			$dataStore.elapsedSinceStateChange++;
+			elapsedSinceStateChange++;
 		}, 1000);
 	});
 
@@ -162,7 +163,7 @@
 			});
 			$dataStore.pomodoroState = 'short-break';
 			$dataStore.lastTime = null;
-			$dataStore.elapsedSinceStateChange = 0;
+			elapsedSinceStateChange = 0;
 
 			timeLeft = targetMinutes * 60;
 
@@ -181,7 +182,7 @@
 			});
 			$dataStore.pomodoroState = 'long-break';
 			$dataStore.lastTime = null;
-			$dataStore.elapsedSinceStateChange = 0;
+			elapsedSinceStateChange = 0;
 
 			timeLeft = targetMinutes * 60;
 
@@ -198,7 +199,7 @@
 			});
 			$dataStore.pomodoroState = 'pomodoro';
 			$dataStore.lastTime = null;
-			$dataStore.elapsedSinceStateChange = 0;
+			elapsedSinceStateChange = 0;
 
 			timeLeft = targetMinutes * 60;
 
@@ -233,7 +234,7 @@
 			$dataStore.reps = 1;
 			$dataStore.lastTime = null;
 			$dataStore.pomodoroState = 'pomodoro';
-			$dataStore.elapsedSinceStateChange = 0;
+			elapsedSinceStateChange = 0;
 
 			timeLeft = targetMinutes * 60;
 		}
