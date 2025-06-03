@@ -53,7 +53,9 @@
 
 		// Start tracking elapsed time since last state change
 		elapsedTimeInterval = setInterval(() => {
-			elapsedSinceStateChange++;
+			if (buttonState === 'paused') {
+				elapsedSinceStateChange++;
+			}
 		}, 1000);
 	});
 
@@ -246,6 +248,10 @@
 		} else {
 			pause();
 		}
+
+		// Reset elapsed timer when button state changes
+		elapsedSinceStateChange = 0;
+
 		await invoke('play_button_press');
 	}
 

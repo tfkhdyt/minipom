@@ -37,10 +37,12 @@
 		{timer}
 	</h2>
 
-	<div
-		class="text-center text-white/70 text-sm md:text-base select-none cursor-default">
-		Elapsed: {elapsedTimer}
-	</div>
+	{#if buttonState === 'paused'}
+		<div
+			class="text-center text-white/70 text-sm md:text-base select-none cursor-default">
+			Elapsed: {elapsedTimer}
+		</div>
+	{/if}
 
 	<div class="relative flex">
 		<SettingDialog />
