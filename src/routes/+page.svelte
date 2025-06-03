@@ -239,25 +239,46 @@
 
 <main
 	class={cn(
-		'mx-auto flex min-h-[100svh] py-4 flex-col text-center text-white transition duration-500',
+		'mx-auto flex min-h-[100svh] flex-col text-center text-white transition duration-500',
 		match($dataStore.pomodoroState)
 			.with('pomodoro', () => 'bg-[#BA4949]')
 			.with('short-break', () => 'bg-[#38858a]')
 			.with('long-break', () => 'bg-[#397097]')
-			.exhaustive(),
-		$dataStore.tasks.length === 0 && 'justify-center'
+			.exhaustive()
 	)}>
-	<Progress
-		value={progress}
+	<!-- Sticky section containing Progress, Card, and Count -->
+	<div
 		class={cn(
-			'w-[450px] md:w-[500px] mx-auto mb-4 h-2 dark',
-			match($dataStore.pomodoroState)
-				.with('pomodoro', () => 'bg-[#c15c5c]')
-				.with('short-break', () => 'bg-[#4c9196]')
-				.with('long-break', () => 'bg-[#4d7fa2]')
-				.exhaustive()
-		)} />
-	<Card {buttonState} {handleClick} {nextStep} {timer} />
-	<Count reps={$dataStore.reps} {resetReps} />
-	<Tasks {switchTask} reps={$dataStore.reps} {buttonState} />
+			'sticky top-0 z-10 pt-4 pb-8 transition duration-500',
+			$dataStore.tasks.length === 0 && 'flex-1 flex flex-col justify-center'
+		)}
+		style="background: linear-gradient(to bottom, {match(
+			$dataStore.pomodoroState
+		)
+			.with('pomodoro', () => '#BA4949')
+			.with('short-break', () => '#38858a')
+			.with('long-break', () => '#397097')
+			.exhaustive()} 0%, {match($dataStore.pomodoroState)
+			.with('pomodoro', () => '#BA4949')
+			.with('short-break', () => '#38858a')
+			.with('long-break', () => '#397097')
+			.exhaustive()} 95%, transparent 100%)">
+		<Progress
+			value={progress}
+			class={cn(
+				'w-[450px] md:w-[500px] mx-auto mb-4 h-2 dark',
+				match($dataStore.pomodoroState)
+					.with('pomodoro', () => 'bg-[#c15c5c]')
+					.with('short-break', () => 'bg-[#4c9196]')
+					.with('long-break', () => 'bg-[#4d7fa2]')
+					.exhaustive()
+			)} />
+		<Card {buttonState} {handleClick} {nextStep} {timer} />
+		<Count reps={$dataStore.reps} {resetReps} />
+	</div>
+
+	<!-- Tasks section -->
+	<div class="flex-1">
+		<Tasks {switchTask} reps={$dataStore.reps} {buttonState} />
+	</div>
 </main>
