@@ -287,7 +287,7 @@
 
 	<Count reps={$dataStore.reps} {resetReps} />
 	<!-- Tasks section -->
-	<div class="flex-1">
+	<div class="flex-1 pb-6">
 		<Tasks {switchTask} reps={$dataStore.reps} {buttonState} />
 	</div>
 </main>
