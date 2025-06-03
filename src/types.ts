@@ -35,4 +35,5 @@ export type Data = {
 	pomodoroState: PomodoroType;
 	tasks: Task[];
 	lastTime: number | undefined | null;
+	elapsedSinceStateChange: number;
 };

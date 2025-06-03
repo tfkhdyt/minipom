@@ -11,6 +11,7 @@
 	export let handleClick: () => void;
 	export let buttonState: ButtonState;
 	export let nextStep: () => Promise<void>;
+	export let elapsedTimer: string;
 </script>
 
 <div
@@ -33,6 +34,11 @@
 		class="font-bold font-rounded text-8xl md:text-9xl tracking-wide select-none cursor-default text-center mx-auto">
 		{timer}
 	</h2>
+
+	<div
+		class="text-center text-white/70 text-sm md:text-base select-none cursor-default">
+		Elapsed: {elapsedTimer}
+	</div>
 
 	<div class="relative flex">
 		<SettingDialog />

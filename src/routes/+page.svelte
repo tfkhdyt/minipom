@@ -33,14 +33,27 @@
 		.toString()
 		.padStart(2, '0')}:${(timeLeft % 60).toString().padStart(2, '0')}`;
 	$: progress = 100 - (timeLeft / 60 / targetMinutes) * 100;
+	$: elapsedTimer = `${Math.floor($dataStore.elapsedSinceStateChange / 60)
+		.toString()
+		.padStart(
+			2,
+			'0'
+		)}:${($dataStore.elapsedSinceStateChange % 60).toString().padStart(2, '0')}`;
 
 	let lastTimeInterval: number;
+	let elapsedTimeInterval: number;
+
 	onMount(async () => {
 		timeLeft = $dataStore.lastTime ?? targetMinutes * 60;
 
 		lastTimeInterval = setInterval(async () => {
 			$dataStore.lastTime = timeLeft;
 		}, 5000);
+
+		// Start tracking elapsed time since last state change
+		elapsedTimeInterval = setInterval(() => {
+			$dataStore.elapsedSinceStateChange++;
+		}, 1000);
 	});
 
 	let intervalId: number;
@@ -149,6 +162,7 @@
 			});
 			$dataStore.pomodoroState = 'short-break';
 			$dataStore.lastTime = null;
+			$dataStore.elapsedSinceStateChange = 0;
 
 			timeLeft = targetMinutes * 60;
 
@@ -167,6 +181,7 @@
 			});
 			$dataStore.pomodoroState = 'long-break';
 			$dataStore.lastTime = null;
+			$dataStore.elapsedSinceStateChange = 0;
 
 			timeLeft = targetMinutes * 60;
 
@@ -183,6 +198,7 @@
 			});
 			$dataStore.pomodoroState = 'pomodoro';
 			$dataStore.lastTime = null;
+			$dataStore.elapsedSinceStateChange = 0;
 
 			timeLeft = targetMinutes * 60;
 
@@ -217,6 +233,7 @@
 			$dataStore.reps = 1;
 			$dataStore.lastTime = null;
 			$dataStore.pomodoroState = 'pomodoro';
+			$dataStore.elapsedSinceStateChange = 0;
 
 			timeLeft = targetMinutes * 60;
 		}
@@ -234,6 +251,7 @@
 	onDestroy(() => {
 		clearInterval(intervalId);
 		clearInterval(lastTimeInterval);
+		clearInterval(elapsedTimeInterval);
 	});
 </script>
 
@@ -273,7 +291,7 @@
 					.with('long-break', () => 'bg-[#4d7fa2]')
 					.exhaustive()
 			)} />
-		<Card {buttonState} {handleClick} {nextStep} {timer} />
+		<Card {buttonState} {handleClick} {nextStep} {timer} {elapsedTimer} />
 		<Count reps={$dataStore.reps} {resetReps} />
 	</div>
 
