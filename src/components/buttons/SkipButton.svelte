@@ -8,7 +8,7 @@
 <button
 	type="button"
 	on:click={nextStep}
-	class="absolute inset-y-5 right-14 focus:outline-none rounded-full h-fit p-2 dark hover:bg-background/15 transition"
+	class="dark focus:outline-none rounded-full h-fit p-2 dark hover:bg-background/15 transition"
 	transition:fade={{ duration: 200 }}>
 	<SkipForwardIcon class="h-8 w-8" />
 </button>

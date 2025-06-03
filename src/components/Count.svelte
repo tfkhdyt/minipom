@@ -1,4 +1,5 @@
 <script lang="ts">
+	import * as Tooltip from '@/components/ui/tooltip';
 	import { dataStore } from '@/stores/data.store';
 	import { getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow';
 	import { onMount } from 'svelte';
@@ -37,12 +38,23 @@
 </script>
 
 <div class="md:text-lg">
-	<button
-		type="button"
-		on:click={resetReps}
-		class="text-gray-300 hover:text-white focus:outline-none">
-		#{reps}
-	</button>
+	<Tooltip.Root>
+		<Tooltip.Trigger>
+			<button
+				type="button"
+				on:click={resetReps}
+				class="text-gray-300 hover:text-white focus:outline-none">
+				#{reps}
+			</button>
+		</Tooltip.Trigger>
+		<Tooltip.Content
+			align="center"
+			side="top"
+			avoidCollisions={false}
+			sideOffset={12}>
+			<p>Reset reps count</p>
+		</Tooltip.Content>
+	</Tooltip.Root>
 	<h3 class="font-medium select-none cursor-default">
 		{currentTaskTitle ??
 			match($dataStore?.pomodoroState)

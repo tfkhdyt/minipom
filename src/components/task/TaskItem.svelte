@@ -1,6 +1,7 @@
 <script lang="ts">
 	import * as Alert from '@/components/ui/alert';
 	import * as ContextMenu from '@/components/ui/context-menu';
+	import * as Tooltip from '@/components/ui/tooltip';
 	import { configStore } from '@/stores/config.store';
 	import { dataStore } from '@/stores/data.store';
 	import { editTaskData, showEditTaskModal } from '@/stores/edit-task';
@@ -101,7 +102,7 @@
 			use:builder.action
 			{...builder}
 			class={cn(
-				'w-full bg-white rounded-md py-3 pl-3 pr-5 text-slate-700 font-semibold border-l-[6px] focus:outline-none space-y-2 cursor-grab',
+				'w-full bg-white rounded-md py-2 pl-3 pr-5 text-slate-700 font-semibold border-l-[6px] focus:outline-none space-y-2 cursor-grab',
 				item.id === $dataStore.activeTask
 					? 'border-l-black'
 					: 'border-l-transparent hover:border-l-slate-300'
@@ -109,17 +110,29 @@
 			on:click={async () => await setActiveTask(item.id)}>
 			<div class="flex justify-between items-center">
 				<div class="flex items-center decoration-4">
-					<button
-						class="focus:outline-none"
-						on:click|stopPropagation={async () => await toggleMark(item.id)}>
-						<CircleCheckIcon
-							class="w-10 h-10 mr-2 hover:opacity-75"
-							fill={match(item.done)
-								.with(false, () => '#dfdfdf')
-								.with(true, () => '#BA4949')
-								.exhaustive()}
-							color="white" />
-					</button>
+					<Tooltip.Root>
+						<Tooltip.Trigger>
+							<button
+								class="focus:outline-none mt-2"
+								on:click|stopPropagation={async () =>
+									await toggleMark(item.id)}>
+								<CircleCheckIcon
+									class="w-10 h-10 mr-2 hover:opacity-75"
+									fill={match(item.done)
+										.with(false, () => '#dfdfdf')
+										.with(true, () => '#BA4949')
+										.exhaustive()}
+									color="white" />
+							</button>
+						</Tooltip.Trigger>
+						<Tooltip.Content
+							align="center"
+							side="top"
+							avoidCollisions={false}
+							sideOffset={12}>
+							<p>{item.done ? 'Mark as incomplete' : 'Mark as complete'}</p>
+						</Tooltip.Content>
+					</Tooltip.Root>
 					<span class={cn(item.done && 'line-through opacity-50')}>
 						{item.title}
 					</span>

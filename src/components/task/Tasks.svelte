@@ -1,4 +1,5 @@
 <script lang="ts">
+	import * as Tooltip from '@/components/ui/tooltip';
 	import { configStore } from '@/stores/config.store';
 	import { dataStore } from '@/stores/data.store';
 	import type { ButtonState, Config, Task } from '@/types';
@@ -83,7 +84,16 @@
 	<div
 		class="font-bold text-lg py-4 border-b border-b-white/75 select-none cursor-default flex items-center justify-between">
 		Tasks
-		<ClearMenu />
+		<Tooltip.Root>
+			<Tooltip.Trigger><ClearMenu /></Tooltip.Trigger>
+			<Tooltip.Content
+				align="center"
+				side="top"
+				avoidCollisions={false}
+				sideOffset={12}>
+				<p>Options</p>
+			</Tooltip.Content>
+		</Tooltip.Root>
 	</div>
 	<AddTask />
 	{#if $dataStore.tasks.length > 0}

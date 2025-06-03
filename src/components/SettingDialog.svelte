@@ -59,7 +59,18 @@
 </script>
 
 <Dialog.Root>
-	<Dialog.Trigger class="focus:outline-none"><SettingButton /></Dialog.Trigger>
+	<Dialog.Trigger class="focus:outline-none">
+		<Tooltip.Root>
+			<Tooltip.Trigger><SettingButton /></Tooltip.Trigger>
+			<Tooltip.Content
+				align="center"
+				side="top"
+				avoidCollisions={false}
+				sideOffset={12}>
+				<p>Settings</p>
+			</Tooltip.Content>
+		</Tooltip.Root>
+	</Dialog.Trigger>
 	<Dialog.Content>
 		<Dialog.Header>
 			<Dialog.Title>Settings</Dialog.Title>

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import * as Tooltip from '@/components/ui/tooltip';
 	import { dataStore } from '@/stores/data.store';
 	import { type ButtonState } from '@/types';
 	import { cn } from '@/utils';
@@ -44,14 +45,35 @@
 		</div>
 	{/if}
 
-	<div class="relative flex">
-		<SettingDialog />
+	<div class="relative flex items-center justify-center gap-8 w-fit mx-auto">
+		<div class="w-8 h-12 flex items-center justify-center mt-2">
+			<SettingDialog />
+		</div>
+
 		<ToggleButton
 			{buttonState}
 			{handleClick}
 			pomodoroType={$dataStore.pomodoroState} />
-		{#if buttonState === 'playing'}
-			<SkipButton {nextStep} />
-		{/if}
+
+		<div class="w-8 h-12 flex items-center justify-center mt-2">
+			<div
+				class={cn(
+					'focus:outline-none transition-opacity duration-300 ease-in-out',
+					buttonState !== 'playing'
+						? 'opacity-0 pointer-events-none'
+						: 'opacity-100'
+				)}>
+				<Tooltip.Root>
+					<Tooltip.Trigger><SkipButton {nextStep} /></Tooltip.Trigger>
+					<Tooltip.Content
+						align="center"
+						side="top"
+						avoidCollisions={false}
+						sideOffset={12}>
+						<p>Skip</p>
+					</Tooltip.Content>
+				</Tooltip.Root>
+			</div>
+		</div>
 	</div>
 </div>
