@@ -273,12 +273,13 @@
 		)}>
 		<Progress
 			value={progress}
+			style="-webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px);"
 			class={cn(
-				'w-[450px] md:w-[500px] mx-auto mb-4 h-2 dark',
+				'w-[450px] md:w-[500px] mx-auto mb-4 h-3 dark border border-white/20 shadow-xl',
 				match($dataStore.pomodoroState)
-					.with('pomodoro', () => 'bg-[#c15c5c]')
-					.with('short-break', () => 'bg-[#4c9196]')
-					.with('long-break', () => 'bg-[#4d7fa2]')
+					.with('pomodoro', () => 'bg-[#c15c5c]/70')
+					.with('short-break', () => 'bg-[#4c9196]/70')
+					.with('long-break', () => 'bg-[#4d7fa2]/70')
 					.exhaustive()
 			)} />
 		<Card {buttonState} {handleClick} {nextStep} {timer} {elapsedTimer} />

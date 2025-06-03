@@ -15,12 +15,14 @@
 </script>
 
 <div
+	style="-webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px);"
 	class={cn(
 		'w-[450px] md:w-[500px] mx-auto py-8 md:py-10 rounded-xl space-y-4 md:space-y-6 transition duration-500',
+		'border border-white/20 shadow-xl',
 		match($dataStore.pomodoroState)
-			.with('pomodoro', () => 'bg-[#c15c5c]')
-			.with('short-break', () => 'bg-[#4c9196]')
-			.with('long-break', () => 'bg-[#4d7fa2]')
+			.with('pomodoro', () => 'bg-[#c15c5c]/70')
+			.with('short-break', () => 'bg-[#4c9196]/70')
+			.with('long-break', () => 'bg-[#4d7fa2]/70')
 			.exhaustive()
 	)}>
 	<h1 class="mx-auto font-bold text-2xl md:text-3xl select-none cursor-default">
