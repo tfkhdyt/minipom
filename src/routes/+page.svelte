@@ -258,13 +258,13 @@
 
 <main
 	class={cn(
-		'mx-auto flex min-h-[100svh] flex-col text-center text-white transition duration-500'
-	)}
-	style="background: linear-gradient(to bottom, {match($dataStore.pomodoroState)
-		.with('pomodoro', () => '#BA4949, #6B2C2C')
-		.with('short-break', () => '#38858a, #1F4A4D')
-		.with('long-break', () => '#397097, #1F3A52')
-		.exhaustive()})">
+		'mx-auto flex min-h-[100svh] flex-col text-center text-white transition duration-500 fixed-gradient-bg',
+		match($dataStore.pomodoroState)
+			.with('pomodoro', () => 'pomodoro-bg')
+			.with('short-break', () => 'short-break-bg')
+			.with('long-break', () => 'long-break-bg')
+			.exhaustive()
+	)}>
 	<!-- Sticky section containing Progress, Card, and Count -->
 	<div
 		class={cn(
@@ -291,3 +291,32 @@
 		<Tasks {switchTask} reps={$dataStore.reps} {buttonState} />
 	</div>
 </main>
+
+<style>
+	.fixed-gradient-bg {
+		position: relative;
+	}
+
+	.fixed-gradient-bg::before {
+		content: '';
+		position: fixed;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		z-index: -1;
+		transition: background 0.5s ease;
+	}
+
+	.pomodoro-bg::before {
+		background: linear-gradient(to bottom, #ba4949, #6b2c2c);
+	}
+
+	.short-break-bg::before {
+		background: linear-gradient(to bottom, #38858a, #1f4a4d);
+	}
+
+	.long-break-bg::before {
+		background: linear-gradient(to bottom, #397097, #1f3a52);
+	}
+</style>
