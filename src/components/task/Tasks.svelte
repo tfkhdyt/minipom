@@ -79,7 +79,7 @@
 	}
 </script>
 
-<section class="w-[450px] md:w-[500px] mx-auto text-left space-y-4">
+<section class="w-[450px] md:w-[500px] mx-auto text-left space-y-4 px-0.5">
 	<div
 		class="font-bold text-lg py-4 border-b border-b-white/75 select-none cursor-default flex items-center justify-between">
 		Tasks
