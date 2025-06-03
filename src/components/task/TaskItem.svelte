@@ -45,7 +45,13 @@
 				return;
 			}
 		}
-		$dataStore.activeTask = id;
+
+		// Toggle task selection: if the task is already active, deselect it
+		if ($dataStore.activeTask === id) {
+			$dataStore.activeTask = null;
+		} else {
+			$dataStore.activeTask = id;
+		}
 	}
 
 	async function editTask(id: number) {
