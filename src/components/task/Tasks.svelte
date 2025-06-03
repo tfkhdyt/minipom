@@ -107,12 +107,13 @@
 		</div>
 		{#if totalEst > 0}
 			<div
+				style="-webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px);"
 				class={cn(
-					'flex space-x-6 items-baseline justify-center rounded-md px-2 py-6 text-center border-t border-white rounded-t-none',
+					'flex space-x-6 items-baseline justify-center rounded-md px-2 py-6 text-center border border-white/20 shadow-xl',
 					match($dataStore.pomodoroState)
-						.with('pomodoro', () => 'bg-[#c15c5c]')
-						.with('short-break', () => 'bg-[#4c9196]')
-						.with('long-break', () => 'bg-[#4d7fa2]')
+						.with('pomodoro', () => 'bg-[#c15c5c]/70')
+						.with('short-break', () => 'bg-[#4c9196]/70')
+						.with('long-break', () => 'bg-[#4d7fa2]/70')
 						.exhaustive()
 				)}>
 				<div class="text-white/75 font-medium">
