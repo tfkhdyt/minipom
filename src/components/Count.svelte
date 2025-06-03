@@ -36,7 +36,7 @@
 	})();
 </script>
 
-<div class="md:text-lg mt-4">
+<div class="md:text-lg">
 	<button
 		type="button"
 		on:click={resetReps}

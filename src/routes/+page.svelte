@@ -258,30 +258,19 @@
 
 <main
 	class={cn(
-		'mx-auto flex min-h-[100svh] flex-col text-center text-white transition duration-500',
-		match($dataStore.pomodoroState)
-			.with('pomodoro', () => 'bg-[#BA4949]')
-			.with('short-break', () => 'bg-[#38858a]')
-			.with('long-break', () => 'bg-[#397097]')
-			.exhaustive()
-	)}>
+		'mx-auto flex min-h-[100svh] flex-col text-center text-white transition duration-500'
+	)}
+	style="background: linear-gradient(to bottom, {match($dataStore.pomodoroState)
+		.with('pomodoro', () => '#BA4949, #6B2C2C')
+		.with('short-break', () => '#38858a, #1F4A4D')
+		.with('long-break', () => '#397097, #1F3A52')
+		.exhaustive()})">
 	<!-- Sticky section containing Progress, Card, and Count -->
 	<div
 		class={cn(
-			'sticky top-0 z-10 pt-4 pb-8 transition duration-500',
+			'sticky top-0 z-10 py-4 transition duration-500',
 			$dataStore.tasks.length === 0 && 'flex-1 flex flex-col justify-center'
-		)}
-		style="background: linear-gradient(to bottom, {match(
-			$dataStore.pomodoroState
-		)
-			.with('pomodoro', () => '#BA4949')
-			.with('short-break', () => '#38858a')
-			.with('long-break', () => '#397097')
-			.exhaustive()} 0%, {match($dataStore.pomodoroState)
-			.with('pomodoro', () => '#BA4949')
-			.with('short-break', () => '#38858a')
-			.with('long-break', () => '#397097')
-			.exhaustive()} 95%, transparent 100%)">
+		)}>
 		<Progress
 			value={progress}
 			class={cn(
@@ -293,9 +282,9 @@
 					.exhaustive()
 			)} />
 		<Card {buttonState} {handleClick} {nextStep} {timer} {elapsedTimer} />
-		<Count reps={$dataStore.reps} {resetReps} />
 	</div>
 
+	<Count reps={$dataStore.reps} {resetReps} />
 	<!-- Tasks section -->
 	<div class="flex-1">
 		<Tasks {switchTask} reps={$dataStore.reps} {buttonState} />
