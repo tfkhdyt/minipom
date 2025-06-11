@@ -11,11 +11,16 @@ import {
 import { writable } from 'svelte/store';
 
 export async function getConfig() {
-	const isConfigDirExists = await exists('', {
+	// Check if the AppConfig base directory exists
+	const isConfigDirExists = await exists('.', {
 		baseDir: BaseDirectory.AppConfig
 	});
+
+	console.log('isConfigDirExists', isConfigDirExists);
+
 	if (!isConfigDirExists) {
-		await mkdir('', { baseDir: BaseDirectory.AppConfig });
+		// Create the AppConfig directory if it doesn't exist
+		await mkdir('.', { baseDir: BaseDirectory.AppConfig });
 	}
 
 	const isConfigFileExists = await exists('config.json', {

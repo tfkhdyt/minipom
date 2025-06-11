@@ -10,11 +10,11 @@ import {
 import { writable } from 'svelte/store';
 
 export async function getData() {
-	const isDataDirExists = await exists('', {
+	const isDataDirExists = await exists('.', {
 		baseDir: BaseDirectory.AppData
 	});
 	if (!isDataDirExists) {
-		await mkdir('', { baseDir: BaseDirectory.AppData });
+		await mkdir('.', { baseDir: BaseDirectory.AppData });
 	}
 
 	const defaultData: Data = {
