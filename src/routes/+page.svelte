@@ -4,7 +4,7 @@
 	import Tasks from '@/components/task/Tasks.svelte';
 	import Progress from '@/components/ui/progress/progress.svelte';
 	import { configStore } from '@/stores/config.store';
-	import { dataStore } from '@/stores/data.store';
+	import { dataStore, saveDataDirectly } from '@/stores/data.store';
 	import type { ButtonState } from '@/types';
 	import { cn } from '@/utils';
 	import { webviewWindow } from '@tauri-apps/api';
@@ -41,15 +41,10 @@
 			'0'
 		)}:${(elapsedSinceStateChange % 60).toString().padStart(2, '0')}`;
 
-	let lastTimeInterval: number;
 	let elapsedTimeInterval: number;
 
 	onMount(async () => {
 		timeLeft = $dataStore.lastTime ?? targetMinutes * 60;
-
-		lastTimeInterval = setInterval(async () => {
-			$dataStore.lastTime = timeLeft;
-		}, 5000);
 
 		// Start tracking elapsed time since last state change
 		elapsedTimeInterval = setInterval(() => {
@@ -75,7 +70,12 @@
 		webviewWindow
 			.getCurrentWebviewWindow()
 			.listen(TauriEvent.WINDOW_CLOSE_REQUESTED, async () => {
-				$dataStore.lastTime = timeLeft;
+				// Save current data directly before exit (no debouncing)
+				const currentData = {
+					...$dataStore,
+					lastTime: timeLeft
+				};
+				await saveDataDirectly(currentData);
 
 				await exit();
 			});
@@ -257,7 +257,6 @@
 
 	onDestroy(() => {
 		clearInterval(intervalId);
-		clearInterval(lastTimeInterval);
 		clearInterval(elapsedTimeInterval);
 	});
 </script>

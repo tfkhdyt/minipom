@@ -56,6 +56,15 @@ export async function getData() {
 
 export const dataStore = writable<Data>();
 
+// Direct save function for immediate data persistence (used on app exit)
+export async function saveDataDirectly(data: Data) {
+	console.log('saveDataDirectly', data);
+	await writeTextFile('data.json', JSON.stringify(data, null, 2), {
+		baseDir: BaseDirectory.AppData
+	});
+}
+
+// Keep debounced write for normal operations (when user makes changes)
 const debouncedWrite = debounce(async (value: Data) => {
 	console.log('debouncedWrite', value);
 
