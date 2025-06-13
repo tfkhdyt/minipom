@@ -43,36 +43,35 @@ A minimalistic and elegant Pomodoro timer desktop application built with Tauri a
 
 ### Installation
 
-#### Using Nix Flakes
+#### Using Pacstall (Debian & Ubuntu)
 
-1. Add the flake input to your configuration:
+Install Minipom using [Pacstall](https://pacstall.dev/), the AUR-inspired package manager for Ubuntu/Debian:
 
-```nix
-{
-    inputs.minipom = {
-      url = "github:tfkhdyt/minipom?ref=v0.9.3";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-}
+```bash
+pacstall -I minipom-deb
 ```
 
-2. Add to your system packages:
+#### Download from GitHub Releases
 
-```nix
-environment.systemPackages = [
-    inputs.minipom.packages.${pkgs.system}.default
-];
-```
+1. Go to the [Releases page](https://github.com/tfkhdyt/minipom/releases)
+2. Download the appropriate package for your system:
 
-3. Or to your home manager packages:
+   - **Linux**: `.deb` (Debian/Ubuntu), `.rpm` (Red Hat/Fedora), or `.AppImage` (Universal)
+   - **Windows**: `.exe` or `.msi` installer
 
-```nix
-{ inputs, ... }: {
-    home.packages = [
-        inputs.minipom.packages.${pkgs.system}.default
-    ];
-}
-```
+3. Install the downloaded package:
+
+   ```bash
+   # For .deb packages (Debian/Ubuntu)
+   sudo dpkg -i Minipom_*.deb
+
+   # For .rpm packages (Red Hat/Fedora)
+   sudo rpm -i Minipom-*.rpm
+
+   # For .AppImage (make executable and run)
+   chmod +x Minipom_*.AppImage
+   ./Minipom_*.AppImage
+   ```
 
 #### Building from Source
 
@@ -122,6 +121,37 @@ pnpm tauri build -b app
 
 # For .dmg installer
 pnpm tauri build -b dmg
+```
+
+#### Using Nix Flakes (Needs New Maintainer)
+
+1. Add the flake input to your configuration:
+
+```nix
+{
+    inputs.minipom = {
+      url = "github:tfkhdyt/minipom?ref=v0.9.3";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+}
+```
+
+2. Add to your system packages:
+
+```nix
+environment.systemPackages = [
+    inputs.minipom.packages.${pkgs.system}.default
+];
+```
+
+3. Or to your home manager packages:
+
+```nix
+{ inputs, ... }: {
+    home.packages = [
+        inputs.minipom.packages.${pkgs.system}.default
+    ];
+}
 ```
 
 ## 🎯 Usage
