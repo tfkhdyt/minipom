@@ -10,13 +10,6 @@ import {
 import { writable } from 'svelte/store';
 
 export async function getData() {
-	const isDataDirExists = await exists('.', {
-		baseDir: BaseDirectory.AppData
-	});
-	if (!isDataDirExists) {
-		await mkdir('.', { baseDir: BaseDirectory.AppData });
-	}
-
 	const defaultData: Data = {
 		activeTask: null,
 		tasks: [],
@@ -25,18 +18,25 @@ export async function getData() {
 		lastTime: null
 	};
 
-	const isDataFileExists = await exists('data.json', {
-		baseDir: BaseDirectory.AppData
-	});
-	if (!isDataFileExists) {
-		console.log('data.json not found, creating default data');
-		await writeTextFile('data.json', JSON.stringify(defaultData, null, 2), {
+	try {
+		const isDataDirExists = await exists('.', {
 			baseDir: BaseDirectory.AppData
 		});
-		return defaultData;
-	}
+		if (!isDataDirExists) {
+			await mkdir('.', { baseDir: BaseDirectory.AppData });
+		}
 
-	try {
+		const isDataFileExists = await exists('data.json', {
+			baseDir: BaseDirectory.AppData
+		});
+		if (!isDataFileExists) {
+			console.log('data.json not found, creating default data');
+			await writeTextFile('data.json', JSON.stringify(defaultData, null, 2), {
+				baseDir: BaseDirectory.AppData
+			});
+			return defaultData;
+		}
+
 		const data = await readTextFile('data.json', {
 			baseDir: BaseDirectory.AppData
 		});
@@ -49,7 +49,7 @@ export async function getData() {
 
 		return currentData;
 	} catch (error) {
-		console.error('Error reading data.json, using default data:', error);
+		console.error('Error in getData, using default data:', error);
 		return defaultData;
 	}
 }

@@ -11,37 +11,41 @@ import {
 import { writable } from 'svelte/store';
 
 export async function getConfig() {
-	// Check if the AppConfig base directory exists
-	const isConfigDirExists = await exists('.', {
-		baseDir: BaseDirectory.AppConfig
-	});
-
-	console.log('isConfigDirExists', isConfigDirExists);
-
-	if (!isConfigDirExists) {
-		// Create the AppConfig directory if it doesn't exist
-		await mkdir('.', { baseDir: BaseDirectory.AppConfig });
-	}
-
-	const isConfigFileExists = await exists('config.json', {
-		baseDir: BaseDirectory.AppConfig
-	});
-	if (!isConfigFileExists) {
-		console.log('config.json not found, creating default config');
-		await writeTextFile('config.json', JSON.stringify(defaultConfig, null, 2), {
+	try {
+		// Check if the AppConfig base directory exists
+		const isConfigDirExists = await exists('.', {
 			baseDir: BaseDirectory.AppConfig
 		});
-		return defaultConfig;
-	}
 
-	try {
+		console.log('isConfigDirExists', isConfigDirExists);
+
+		if (!isConfigDirExists) {
+			// Create the AppConfig directory if it doesn't exist
+			await mkdir('.', { baseDir: BaseDirectory.AppConfig });
+		}
+
+		const isConfigFileExists = await exists('config.json', {
+			baseDir: BaseDirectory.AppConfig
+		});
+		if (!isConfigFileExists) {
+			console.log('config.json not found, creating default config');
+			await writeTextFile(
+				'config.json',
+				JSON.stringify(defaultConfig, null, 2),
+				{
+					baseDir: BaseDirectory.AppConfig
+				}
+			);
+			return defaultConfig;
+		}
+
 		const contents = await readTextFile('config.json', {
 			baseDir: BaseDirectory.AppConfig
 		});
 		const currentConfig = JSON.parse(contents) as Config;
 		return currentConfig;
 	} catch (error) {
-		console.error('Error reading config.json, using default config:', error);
+		console.error('Error in getConfig, using default config:', error);
 		return defaultConfig;
 	}
 }

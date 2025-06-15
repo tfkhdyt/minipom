@@ -6,21 +6,27 @@
 	import { onMount } from 'svelte';
 
 	let isLoading = true;
-	let error: Error | null = null;
+	let error: string | null = null;
+
+	function getErrorMessage(err: unknown): string {
+		if (err instanceof Error) {
+			return err.message;
+		}
+		if (typeof err === 'string') {
+			return err;
+		}
+		return 'An unexpected error occurred while loading the application';
+	}
 
 	onMount(async () => {
 		try {
 			const [data, config] = await Promise.all([getData(), getConfig()]);
 
-			if (data) {
-				$dataStore = data;
-			}
-
-			if (config) {
-				$configStore = config;
-			}
+			// Always set the store values, even if they're default values
+			$dataStore = data;
+			$configStore = config;
 		} catch (err) {
-			error = err as Error;
+			error = getErrorMessage(err);
 		} finally {
 			isLoading = false;
 		}
@@ -54,7 +60,7 @@
 			</svg>
 		</div>
 		<p class="text-red-400 font-medium mb-2">Failed to load data</p>
-		<p class="text-slate-300 text-sm">{error.message}</p>
+		<p class="text-slate-300 text-sm">{error}</p>
 	</div>
 {:else}
 	<slot />
