@@ -50,7 +50,8 @@ export async function getConfig() {
 	}
 }
 
-export const configStore = writable<Config>();
+// Initialize with default config to prevent undefined values on first load
+export const configStore = writable<Config>(defaultConfig);
 
 const debouncedWrite = debounce(async (value: Config) => {
 	console.log('debouncedWrite', value);

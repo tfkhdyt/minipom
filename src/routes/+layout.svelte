@@ -22,7 +22,7 @@
 		try {
 			const [data, config] = await Promise.all([getData(), getConfig()]);
 
-			// Always set the store values, even if they're default values
+			// Update stores with loaded data (they already have default values)
 			$dataStore = data;
 			$configStore = config;
 		} catch (err) {

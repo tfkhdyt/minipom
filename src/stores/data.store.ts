@@ -54,7 +54,16 @@ export async function getData() {
 	}
 }
 
-export const dataStore = writable<Data>();
+// Initialize with default data to prevent undefined values on first load
+const defaultData: Data = {
+	activeTask: null,
+	tasks: [],
+	reps: 1,
+	pomodoroState: 'pomodoro' as const,
+	lastTime: null
+};
+
+export const dataStore = writable<Data>(defaultData);
 
 // Direct save function for immediate data persistence (used on app exit)
 export async function saveDataDirectly(data: Data) {

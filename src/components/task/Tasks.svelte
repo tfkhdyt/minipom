@@ -17,6 +17,7 @@
 	export let switchTask: (id: number) => Promise<void>;
 	export let reps: number;
 
+	// Stores are now initialized with default values, so we can safely access them
 	$: totalAct = $dataStore.tasks
 		.filter((t) => !t.done)
 		.reduce((a, b) => a + b.act, 0);

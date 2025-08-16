@@ -19,6 +19,7 @@
 	import { onDestroy, onMount } from 'svelte';
 	import { match } from 'ts-pattern';
 
+	// Stores are now initialized with default values, so we can safely access them
 	$: longBreakInterval = $configStore.timer.longBreakInterval;
 
 	let buttonState: ButtonState = 'paused';
@@ -44,6 +45,7 @@
 	let elapsedTimeInterval: number;
 
 	onMount(async () => {
+		// Set timeLeft based on saved data or default
 		timeLeft = $dataStore.lastTime ?? targetMinutes * 60;
 
 		// Start tracking elapsed time since last state change
@@ -147,6 +149,9 @@
 			const lastUndone = $dataStore.tasks.findLast((it) => it.done === false);
 			if (lastUndone) {
 				$dataStore.activeTask = lastUndone.id;
+			} else {
+				// If no incomplete tasks found, remove active task selection
+				$dataStore.activeTask = null;
 			}
 		}
 	}
