@@ -4,7 +4,7 @@
 #[cfg(not(target_os = "linux"))]
 use notify_rust::Notification;
 
-use rodio::{Decoder, OutputStream, Sink};
+use rodio::{Decoder, OutputStreamBuilder, Sink};
 use std::{fs::File, io::BufReader};
 use tauri::{path::BaseDirectory, Manager};
 
@@ -30,8 +30,8 @@ fn play_button_press(handle: tauri::AppHandle) {
         .resolve("audio/button-press.wav", BaseDirectory::Resource)
         .expect("failed to resolve resource");
 
-    let (_stream, stream_handle) = OutputStream::try_default().unwrap();
-    let sink = Sink::try_new(&stream_handle).unwrap();
+    let stream_handle = OutputStreamBuilder::open_default_stream().unwrap();
+    let sink = Sink::connect_new(&stream_handle.mixer());
     let file = File::open(&resource_path).unwrap();
     sink.append(Decoder::new(BufReader::new(file)).unwrap());
     sink.sleep_until_end();
@@ -44,8 +44,8 @@ fn play_transition_audio(handle: tauri::AppHandle) {
         .resolve("audio/alarm-kitchen.mp3", BaseDirectory::Resource)
         .expect("failed to resolve resource");
 
-    let (_stream, stream_handle) = OutputStream::try_default().unwrap();
-    let sink = Sink::try_new(&stream_handle).unwrap();
+    let stream_handle = OutputStreamBuilder::open_default_stream().unwrap();
+    let sink = Sink::connect_new(&stream_handle.mixer());
     let file = File::open(&resource_path).unwrap();
     sink.append(Decoder::new(BufReader::new(file)).unwrap());
     sink.sleep_until_end();

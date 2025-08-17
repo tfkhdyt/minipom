@@ -18,12 +18,12 @@ tauri-build = { version = "2", features = [] }
 serde_json = "1.0"
 serde = { version = "1.0", features = ["derive"] }
 tauri = { version = "2", features = [] }
-rodio = "0.18"
+rodio = "0.21"
 tauri-plugin-notification = "2"
 tauri-plugin-process = "2"
 tauri-plugin-dialog = "2"
 tauri-plugin-fs = "2"
-reqwest = "0.11"
+reqwest = "0.12"
 notify-rust = "4"
 
 [features]
