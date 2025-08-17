@@ -5,8 +5,55 @@
 use notify_rust::Notification;
 
 use rodio::{Decoder, OutputStreamBuilder, Sink};
-use std::{fs::File, io::BufReader};
+use std::{fs::File, io::BufReader, sync::Mutex};
 use tauri::{path::BaseDirectory, Manager};
+
+// Audio cache to avoid reloading audio files
+struct AudioCache {
+    button_press_path: Option<String>,
+    transition_path: Option<String>,
+}
+
+impl AudioCache {
+    fn new() -> Self {
+        Self {
+            button_press_path: None,
+            transition_path: None,
+        }
+    }
+
+    fn get_button_press_path(&mut self, handle: &tauri::AppHandle) -> String {
+        if let Some(ref path) = self.button_press_path {
+            return path.clone();
+        }
+
+        let resource_path = handle
+            .path()
+            .resolve("audio/button-press.wav", BaseDirectory::Resource)
+            .expect("failed to resolve resource")
+            .to_string_lossy()
+            .to_string();
+
+        self.button_press_path = Some(resource_path.clone());
+        resource_path
+    }
+
+    fn get_transition_path(&mut self, handle: &tauri::AppHandle) -> String {
+        if let Some(ref path) = self.transition_path {
+            return path.clone();
+        }
+
+        let resource_path = handle
+            .path()
+            .resolve("audio/alarm-kitchen.mp3", BaseDirectory::Resource)
+            .expect("failed to resolve resource")
+            .to_string_lossy()
+            .to_string();
+
+        self.transition_path = Some(resource_path.clone());
+        resource_path
+    }
+}
 
 fn main() {
     tauri::Builder::default()
@@ -14,6 +61,7 @@ fn main() {
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_process::init())
         .plugin(tauri_plugin_notification::init())
+        .manage(Mutex::new(AudioCache::new()))
         .invoke_handler(tauri::generate_handler![
             play_transition_audio,
             play_button_press,
@@ -24,11 +72,9 @@ fn main() {
 }
 
 #[tauri::command(async)]
-fn play_button_press(handle: tauri::AppHandle) {
-    let resource_path = handle
-        .path()
-        .resolve("audio/button-press.wav", BaseDirectory::Resource)
-        .expect("failed to resolve resource");
+fn play_button_press(handle: tauri::AppHandle, state: tauri::State<'_, Mutex<AudioCache>>) {
+    let mut cache = state.lock().unwrap();
+    let resource_path = cache.get_button_press_path(&handle);
 
     let stream_handle = OutputStreamBuilder::open_default_stream().unwrap();
     let sink = Sink::connect_new(&stream_handle.mixer());
@@ -38,11 +84,9 @@ fn play_button_press(handle: tauri::AppHandle) {
 }
 
 #[tauri::command(async)]
-fn play_transition_audio(handle: tauri::AppHandle) {
-    let resource_path = handle
-        .path()
-        .resolve("audio/alarm-kitchen.mp3", BaseDirectory::Resource)
-        .expect("failed to resolve resource");
+fn play_transition_audio(handle: tauri::AppHandle, state: tauri::State<'_, Mutex<AudioCache>>) {
+    let mut cache = state.lock().unwrap();
+    let resource_path = cache.get_transition_path(&handle);
 
     let stream_handle = OutputStreamBuilder::open_default_stream().unwrap();
     let sink = Sink::connect_new(&stream_handle.mixer());

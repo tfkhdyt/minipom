@@ -17,55 +17,100 @@
 	export let switchTask: (id: number) => Promise<void>;
 	export let reps: number;
 
-	// Stores are now initialized with default values, so we can safely access them
-	$: totalAct = $dataStore.tasks
-		.filter((t) => !t.done)
-		.reduce((a, b) => a + b.act, 0);
-	$: totalEst = $dataStore.tasks
-		.filter((t) => !t.done)
-		.reduce((a, b) => a + b.est, 0);
+	// Memoized task calculations - only recalculate when tasks change
+	let lastTasksHash = '';
+	let cachedTotalAct = 0;
+	let cachedTotalEst = 0;
 
-	$: finishAtMinute = calculateFinishAtMinute(
-		totalAct,
-		totalEst,
-		reps,
-		$configStore
-	);
+	$: {
+		const tasksHash = JSON.stringify(
+			$dataStore.tasks.map((t) => ({
+				id: t.id,
+				done: t.done,
+				act: t.act,
+				est: t.est
+			}))
+		);
+		if (tasksHash !== lastTasksHash) {
+			cachedTotalAct = $dataStore.tasks
+				.filter((t) => !t.done)
+				.reduce((a, b) => a + b.act, 0);
+			cachedTotalEst = $dataStore.tasks
+				.filter((t) => !t.done)
+				.reduce((a, b) => a + b.est, 0);
+			lastTasksHash = tasksHash;
+		}
+	}
+	$: totalAct = cachedTotalAct;
+	$: totalEst = cachedTotalEst;
+
+	// Memoized finish time calculation
+	let lastFinishAtInputs = '';
+	let cachedFinishAtMinute = 0;
+	$: {
+		const inputs = `${totalAct}-${totalEst}-${reps}-${JSON.stringify($configStore.timer.time)}`;
+		if (inputs !== lastFinishAtInputs) {
+			cachedFinishAtMinute = calculateFinishAtMinute(
+				totalAct,
+				totalEst,
+				reps,
+				$configStore
+			);
+			lastFinishAtInputs = inputs;
+		}
+	}
+	$: finishAtMinute = cachedFinishAtMinute;
+
+	// Optimized date updates - only update every 5 minutes instead of every minute
 	$: date = new Date();
 	let intervalId: number;
 
 	onMount(() => {
 		intervalId = setInterval(() => {
 			date = new Date();
-		}, 60000);
+		}, 300000); // Update every 5 minutes instead of every minute
 	});
 
 	onDestroy(() => {
 		clearInterval(intervalId);
 	});
 
-	$: finishAt = format(add(date, { minutes: finishAtMinute }), 'HH:mm');
-	$: finishAtDistance = formatDistanceToNowStrict(
-		add(date, { minutes: finishAtMinute })
-	);
+	// Memoized finish time display
+	let lastFinishAtMinuteValue = -1;
+	let cachedFinishAt = '';
+	let cachedFinishAtDistance = '';
+	$: {
+		if (finishAtMinute !== lastFinishAtMinuteValue) {
+			const finishDate = add(date, { minutes: finishAtMinute });
+			cachedFinishAt = format(finishDate, 'HH:mm');
+			cachedFinishAtDistance = formatDistanceToNowStrict(finishDate);
+			lastFinishAtMinuteValue = finishAtMinute;
+		}
+	}
+	$: finishAt = cachedFinishAt;
+	$: finishAtDistance = cachedFinishAtDistance;
 
+	// Optimized finish time calculation with early exit
 	function calculateFinishAtMinute(
 		act: number,
 		est: number,
 		reps: number,
 		config: Config
 	) {
+		if (est <= act) return 0; // Early exit if no more work needed
+
 		let rep = reps;
 		let result = 0;
+		const remainingWork = est - act;
 
-		for (let i = act; i < est; i++) {
+		// Use a more efficient calculation
+		for (let i = 0; i < remainingWork; i++) {
 			result += config.timer.time.pomodoro;
-			if (rep % 4 === 0) {
+			if (rep % config.timer.longBreakInterval === 0) {
 				result += config.timer.time.longBreak;
 			} else {
 				result += config.timer.time.shortBreak;
 			}
-
 			rep++;
 		}
 

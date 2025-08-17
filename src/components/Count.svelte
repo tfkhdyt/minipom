@@ -14,27 +14,50 @@
 	export let resetReps: () => Promise<void>;
 	export let reps: number;
 
-	$: currentTaskTitle = $dataStore?.tasks.find(
-		(it) => it.id === $dataStore?.activeTask
-	)?.title;
+	// Memoized current task title
+	let lastActiveTaskId: number | null = null;
+	let cachedCurrentTaskTitle = '';
+	$: {
+		const activeTaskId = $dataStore?.activeTask;
+		if (activeTaskId !== lastActiveTaskId) {
+			cachedCurrentTaskTitle =
+				$dataStore?.tasks.find((it) => it.id === activeTaskId)?.title ?? '';
+			lastActiveTaskId = activeTaskId;
+		}
+	}
+	$: currentTaskTitle = cachedCurrentTaskTitle;
 
-	$: (async () => {
+	// Memoized window title updates - only update when relevant data changes
+	let lastTitleData = '';
+	$: {
+		const titleData = `${currentTaskTitle}-${$dataStore?.pomodoroState}-${reps}`;
+		if (
+			titleData !== lastTitleData &&
+			typeof window !== 'undefined' &&
+			appWindow
+		) {
+			updateWindowTitle();
+			lastTitleData = titleData;
+		}
+	}
+
+	async function updateWindowTitle() {
 		if (typeof window === 'undefined' || !appWindow) return;
 
 		switch ($dataStore?.pomodoroState) {
 			case 'pomodoro':
 				await appWindow.setTitle(
-					`${currentTaskTitle ?? 'Time to focus!'} — Minipom`
+					`${currentTaskTitle || 'Time to focus!'} — Minipom`
 				);
 				break;
 			case 'short-break':
 			case 'long-break':
 				await appWindow.setTitle(
-					`${currentTaskTitle ?? 'Time for a break!'} — Minipom`
+					`${currentTaskTitle || 'Time for a break!'} — Minipom`
 				);
 				break;
 		}
-	})();
+	}
 </script>
 
 <div class="md:text-lg">
@@ -56,7 +79,7 @@
 		</Tooltip.Content>
 	</Tooltip.Root>
 	<h3 class="font-medium select-none cursor-default">
-		{currentTaskTitle ??
+		{currentTaskTitle ||
 			match($dataStore?.pomodoroState)
 				.with('pomodoro', () => 'Time to focus!')
 				.otherwise(() => 'Time for a break!')}

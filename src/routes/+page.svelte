@@ -31,37 +31,71 @@
 		.with('long-break', () => $configStore.timer.time.longBreak)
 		.exhaustive();
 	$: timeLeft = targetMinutes * 60;
-	$: timer = `${Math.floor(timeLeft / 60)
-		.toString()
-		.padStart(2, '0')}:${(timeLeft % 60).toString().padStart(2, '0')}`;
-	$: progress = 100 - (timeLeft / 60 / targetMinutes) * 100;
-	$: elapsedTimer = `${Math.floor(elapsedSinceStateChange / 60)
-		.toString()
-		.padStart(
-			2,
-			'0'
-		)}:${(elapsedSinceStateChange % 60).toString().padStart(2, '0')}`;
 
-	let elapsedTimeInterval: number;
+	// Memoized timer display - only recalculate when timeLeft changes significantly
+	let lastTimeLeft = -1;
+	let cachedTimer = '';
+	$: {
+		if (Math.abs(timeLeft - lastTimeLeft) >= 1) {
+			const minutes = Math.floor(timeLeft / 60);
+			const seconds = timeLeft % 60;
+			cachedTimer = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+			lastTimeLeft = timeLeft;
+		}
+	}
+	$: timer = cachedTimer;
+
+	// Memoized progress calculation
+	let lastProgressTimeLeft = -1;
+	let cachedProgress = 0;
+	$: {
+		if (Math.abs(timeLeft - lastProgressTimeLeft) >= 1) {
+			cachedProgress = 100 - (timeLeft / 60 / targetMinutes) * 100;
+			lastProgressTimeLeft = timeLeft;
+		}
+	}
+	$: progress = cachedProgress;
+
+	// Memoized elapsed timer display
+	let lastElapsed = -1;
+	let cachedElapsedTimer = '';
+	$: {
+		if (elapsedSinceStateChange !== lastElapsed) {
+			const minutes = Math.floor(elapsedSinceStateChange / 60);
+			const seconds = elapsedSinceStateChange % 60;
+			cachedElapsedTimer = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+			lastElapsed = elapsedSinceStateChange;
+		}
+	}
+	$: elapsedTimer = cachedElapsedTimer;
+
+	// Single consolidated timer interval
+	let mainIntervalId: number;
 
 	onMount(async () => {
 		// Set timeLeft based on saved data or default
 		timeLeft = $dataStore.lastTime ?? targetMinutes * 60;
 
-		// Start tracking elapsed time since last state change
-		elapsedTimeInterval = setInterval(() => {
+		// Start consolidated timer that handles both countdown and elapsed time
+		mainIntervalId = setInterval(() => {
+			// Update elapsed time when paused
 			if (buttonState === 'paused') {
 				elapsedSinceStateChange++;
 			}
+
+			// Update countdown timer when playing
+			if (buttonState === 'playing' && timeLeft > 0) {
+				timeLeft--;
+
+				if (timeLeft < 0) {
+					nextStep();
+					invoke('play_transition_audio');
+				}
+			}
 		}, 1000);
-	});
 
-	let intervalId: number;
-
-	let permissionGranted: boolean;
-	onMount(async () => {
-		permissionGranted = await isPermissionGranted();
-
+		// Permission setup
+		let permissionGranted = await isPermissionGranted();
 		if (!permissionGranted) {
 			const permission = await requestPermission();
 			permissionGranted = permission === 'granted';
@@ -78,34 +112,18 @@
 					lastTime: timeLeft
 				};
 				await saveDataDirectly(currentData);
-
 				await exit();
 			});
 	});
 
-	async function updateTimer() {
-		timeLeft--;
-		const minutes = Math.floor(timeLeft / 60);
-		const seconds = timeLeft % 60;
+	// Memoized task operations
+	function incrementActiveTaskAct() {
+		const activeTaskId = $dataStore.activeTask;
+		if (!activeTaskId) return;
 
-		const formattedMinutes = minutes.toString().padStart(2, '0');
-		const formattedSeconds = seconds.toString().padStart(2, '0');
-
-		timer = `${formattedMinutes}:${formattedSeconds}`;
-
-		if (timeLeft < 0) {
-			await nextStep();
-			await invoke('play_transition_audio');
-		}
-	}
-
-	async function incrementActiveTaskAct() {
 		$dataStore.tasks = $dataStore.tasks.map((task) => {
-			if (task.id === $dataStore.activeTask) {
-				return {
-					...task,
-					act: task.act + 1
-				};
+			if (task.id === activeTaskId) {
+				return { ...task, act: task.act + 1 };
 			}
 			return task;
 		});
@@ -123,10 +141,7 @@
 		) {
 			$dataStore.tasks = $dataStore.tasks.map((t) => {
 				if (t.id === $dataStore.activeTask) {
-					return {
-						...t,
-						done: true
-					};
+					return { ...t, done: true };
 				}
 				return t;
 			});
@@ -150,15 +165,12 @@
 			if (lastUndone) {
 				$dataStore.activeTask = lastUndone.id;
 			} else {
-				// If no incomplete tasks found, remove active task selection
 				$dataStore.activeTask = null;
 			}
 		}
 	}
 
 	async function nextStep() {
-		clearInterval(intervalId);
-
 		pause();
 
 		if (
@@ -171,10 +183,9 @@
 			$dataStore.pomodoroState = 'short-break';
 			$dataStore.lastTime = null;
 			elapsedSinceStateChange = 0;
-
 			timeLeft = targetMinutes * 60;
 
-			await incrementActiveTaskAct();
+			incrementActiveTaskAct();
 			await autoCheckTask();
 
 			if ($configStore.timer.autoStart.breaks) {
@@ -190,10 +201,9 @@
 			$dataStore.pomodoroState = 'long-break';
 			$dataStore.lastTime = null;
 			elapsedSinceStateChange = 0;
-
 			timeLeft = targetMinutes * 60;
 
-			await incrementActiveTaskAct();
+			incrementActiveTaskAct();
 			await autoCheckTask();
 
 			if ($configStore.timer.autoStart.breaks) {
@@ -207,7 +217,6 @@
 			$dataStore.pomodoroState = 'pomodoro';
 			$dataStore.lastTime = null;
 			elapsedSinceStateChange = 0;
-
 			timeLeft = targetMinutes * 60;
 
 			if ($configStore.timer.autoStart.pomodoros) {
@@ -218,13 +227,9 @@
 
 	function startInterval() {
 		buttonState = 'playing';
-
-		clearInterval(intervalId);
-		intervalId = setInterval(updateTimer, 1000);
 	}
 
 	function pause() {
-		clearInterval(intervalId);
 		buttonState = 'paused';
 	}
 
@@ -242,7 +247,6 @@
 			$dataStore.lastTime = null;
 			$dataStore.pomodoroState = 'pomodoro';
 			elapsedSinceStateChange = 0;
-
 			timeLeft = targetMinutes * 60;
 		}
 	}
@@ -256,13 +260,13 @@
 
 		// Reset elapsed timer when button state changes
 		elapsedSinceStateChange = 0;
-
 		await invoke('play_button_press');
 	}
 
 	onDestroy(() => {
-		clearInterval(intervalId);
-		clearInterval(elapsedTimeInterval);
+		if (mainIntervalId) {
+			clearInterval(mainIntervalId);
+		}
 	});
 </script>
 
